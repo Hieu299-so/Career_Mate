@@ -1,0 +1,73 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "A user of the platform (Candidate, Recruiter, or Admin)",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Firebase Auth UID" },
+        "email": { "type": "string", "format": "email" },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "role": { "type": "string", "enum": ["candidate", "recruiter", "admin"] },
+        "bio": { "type": "string" },
+        "skills": { "type": "array", "items": { "type": "string" } },
+        "cvUrl": { "type": "string", "description": "URL to the uploaded CV" },
+        "cvAnalysis": { "type": "object", "description": "AI analysis of the CV" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "Job": {
+      "title": "Job",
+      "description": "A job posting",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "company": { "type": "string" },
+        "description": { "type": "string" },
+        "requirements": { "type": "string" },
+        "salary": { "type": "string" },
+        "location": { "type": "string" },
+        "recruiterId": { "type": "string" },
+        "status": { "type": "string", "enum": ["open", "closed"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "company", "recruiterId", "status"]
+    },
+    "Application": {
+      "title": "Application",
+      "description": "A job application",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "jobId": { "type": "string" },
+        "candidateId": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "reviewed", "shortlisted", "rejected", "offered"] },
+        "score": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["jobId", "candidateId", "status"]
+    },
+    "Article": {
+      "title": "Article",
+      "description": "A career article or resource",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "authorId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "content", "authorId"]
+    }
+  },
+  "firestore": {
+    "/users/{uid}": { "schema": "User", "description": "User profiles" },
+    "/jobs/{jobId}": { "schema": "Job", "description": "Job postings" },
+    "/applications/{appId}": { "schema": "Application", "description": "Job applications" },
+    "/articles/{articleId}": { "schema": "Article", "description": "Career articles" }
+  }
+}

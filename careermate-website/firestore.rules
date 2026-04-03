@@ -1,0 +1,58 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && 
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+         request.auth.token.email == 'vuxhide@gmail.com');
+    }
+
+    function isRecruiter() {
+      return isAuthenticated() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'recruiter';
+    }
+
+    // User Rules
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId) || isAdmin();
+    }
+
+    // Job Rules
+    match /jobs/{jobId} {
+      allow read: if true;
+      allow create: if isRecruiter() || isAdmin();
+      allow update: if (isRecruiter() && resource.data.recruiterId == request.auth.uid) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Application Rules
+    match /applications/{appId} {
+      allow read: if isAuthenticated() && (
+        resource.data.candidateId == request.auth.uid || 
+        get(/databases/$(database)/documents/jobs/$(resource.data.jobId)).data.recruiterId == request.auth.uid ||
+        isAdmin()
+      );
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && (
+        get(/databases/$(database)/documents/jobs/$(resource.data.jobId)).data.recruiterId == request.auth.uid ||
+        isAdmin()
+      );
+    }
+
+    // Article Rules
+    match /articles/{articleId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+  }
+}

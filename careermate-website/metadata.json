@@ -1,0 +1,9 @@
+{
+  "name": "CareerMate Website",
+  "description": "Nền tảng Website tư vấn nghề nghiệp và phân tích CV thông minh sử dụng AI.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "geolocation"
+  ]
+}
